@@ -1,6 +1,6 @@
 {
-  "name": "finkitty",
-  "homepage": "https://jeanflower.github.io/FinKitty",
+  "name": "finneo",
+  "homepage": "https://jeanflower.github.io/FinNeoClient",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

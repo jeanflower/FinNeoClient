@@ -4,7 +4,7 @@ import webdriver, { ThenableWebDriver, Key } from 'selenium-webdriver';
 export function allowExtraSleeps() {
   if (
     process.env.REACT_APP_SERVER_URL_NOT_SECRET ===
-    'http://localhost:3001/finkitty/'
+    'http://localhost:3001/finneo/'
   ) {
     // log(`don't need extra sleeps`);
     return false;
@@ -16,7 +16,6 @@ export function allowExtraSleeps() {
 export const serverUri = 'https://localhost:3000/#';
 
 export const dBSleep = 1500; // time to round trip through DB
-export const calcSleep = 1000; // time to recalculate charts etc
 const shortSleep = 200;
 
 export function getDriver(headless: boolean) {
@@ -73,33 +72,6 @@ async function gotoHomePage(driver: ThenableWebDriver) {
   }
 }
 
-export async function selectModel(
-  driver: ThenableWebDriver,
-  testDataModelName: string,
-) {
-  await gotoHomePage(driver);
-
-  if (allowExtraSleeps()) {
-    await sleep(1000, 'time for buttons to appear');
-  }
-
-  const btnData = await driver.findElements(
-    webdriver.By.id(`btn-overview-${testDataModelName}`),
-  );
-
-  if (btnData[0] !== undefined) {
-    // scrolling
-    await driver.executeScript('window.scrollBy(0, -1000)'); // Adjust scrolling with a negative value here
-
-    await btnData[0].click();
-  } else {
-    log(`BUG : can't see model ${testDataModelName} in model list`);
-    await bugSleep("BUG : can't see model in model list? lengthen dBSleep?");
-  }
-}
-
-export const testUserID = 'TestUserID';
-
 export async function clickButton(driver: ThenableWebDriver, id: string) {
   const btn = await driver.findElements(webdriver.By.id(id));
   if (btn.length !== 1) {
@@ -109,20 +81,6 @@ export async function clickButton(driver: ThenableWebDriver, id: string) {
   await btn[0].click();
 }
 
-export async function fillInputById(
-  driver: ThenableWebDriver,
-  id: string,
-  content: string,
-) {
-  const input = await driver.findElements(webdriver.By.id(id));
-  if (input.length !== 1) {
-    log(`found ${input.length} elements with id=${id}`);
-  }
-  expect(input.length === 1).toBe(true);
-  const result = await input[0].sendKeys(content);
-  //log(`got ${result} from content ${content}`);
-  return result;
-}
 
 export async function scrollIntoViewByID(
   driver: ThenableWebDriver,
@@ -138,60 +96,9 @@ export async function scrollIntoViewByID(
   await driver.executeScript('window.scrollBy(0, -5000)');
 }
 
-export async function scrollIntoViewByName(
-  driver: ThenableWebDriver,
-  name: string,
-) {
-  const input = await driver.findElements(webdriver.By.name(name));
-  //log(`found ${input.length} elements with name = ${name}`);
-  expect(input.length === 1).toBe(true);
-
-  await driver.executeScript('arguments[0].scrollIntoView(true);', input[0]);
-}
-
-export async function fillInputByName(
-  driver: ThenableWebDriver,
-  name: string,
-  content: string,
-) {
-  await scrollIntoViewByName(driver, name);
-
-  const input = await driver.findElements(webdriver.By.name(name));
-  const result = await input[0].sendKeys(content);
-  // log(`got ${result} from content ${content}`);
-  return result;
-}
-
-export async function replaceWithTestModel(
-  driver: ThenableWebDriver,
-  testDataModelName: string,
-  modelString: string,
-) {
-  await fillInputByName(
-    driver,
-    'replaceWithJSON',
-    `${testDataModelName}${modelString}`,
-  );
-
-  const input = await driver.findElements(webdriver.By.id('replaceWithJSON'));
-  expect(input.length === 1).toBe(true);
-  await input[0].sendKeys(Key.ENTER);
-
-  const alert = driver.switchTo().alert();
-  const alertText = await alert.getText();
-  // log(`alertText = ${alertText}`);
-  expect(alertText).toEqual(
-    `will replace if ${testDataModelName} already exists, you sure?`,
-  );
-
-  await alert.accept();
-  await clickButton(driver, 'btn-clear-alert');
-}
 
 export async function beforeAllWork(
   driver: ThenableWebDriver,
-  testDataModelName: string,
-  modelString: string,
 ) {
   jest.setTimeout(1000000); // allow time for all these tests to run
 
@@ -220,53 +127,20 @@ export async function beforeAllWork(
   await clickButton(driver, 'buttonTestLogin');
   await clickButton(driver, 'btn-Home');
 
-  // tests overwrite data using input forms
-  // even though we don't expect people to do this
-  await clickButton(driver, 'btn-toggle-check-overwrite');
-
-  if (testDataModelName !== '' && modelString !== '') {
-    await replaceWithTestModel(driver, testDataModelName, modelString);
-
-    await selectModel(driver, testDataModelName);
-    if (allowExtraSleeps()) {
-      await sleep(calcSleep, '--- after model selected');
-    }
-    await clickButton(driver, 'btn-Home');
-  }
 }
 
 export async function cleanUpWork(
   driver: ThenableWebDriver,
-  testDataModelName: string,
 ) {
   await gotoHomePage(driver);
 
-  return new Promise(async resolve => {
+  return new Promise<void>(async resolve => {
     // log(`in clean up model`);
     // log(`go seek model_input name`);
     // log(`seek btn-${testDataModelName}`);
 
-    await selectModel(driver, testDataModelName);
     await clickButton(driver, 'btn-Home');
 
-    const deleteModelButton = await driver.findElement(
-      webdriver.By.id(`btn-delete`),
-    );
-    await deleteModelButton.click();
-    // log(`model name = ${content}`);
-    // log(`go find delete model button`);
-    if (allowExtraSleeps()) {
-      await sleep(shortSleep, 'after delete model is clicked');
-    }
-    const alert = driver.switchTo().alert();
-    const alertText = await alert.getText();
-    expect(alertText).toEqual(
-      `delete all data in model ${testDataModelName} - you sure?`,
-    );
-    // log(`alertText = ${alertText}`);
-    await alert.accept();
-    // log(`accepted alert`);
-    // log(`deleted model`);
     resolve();
   });
 }
@@ -274,73 +148,8 @@ export async function cleanUpWork(
 // click something to refresh page // hack!
 export async function refreshPage(
   driver: ThenableWebDriver,
-  testDataModelName: string,
 ) {
   // log('in refreshPage');
-  await selectModel(driver, testDataModelName);
   await clickButton(driver, 'btn-Home');
-  return sleep(calcSleep, 'after refreshing a page');
 }
 
-export function writeTestCode(ary: any[]) {
-  let result = 'AUTO_GENERATED_TEST_CODE:\n';
-  result += `expect(ary.length).toEqual(${ary.length});\n`;
-  for (let i = 0; i < ary.length; i += 1) {
-    result += `expect(ary[${i}].name).toEqual('${ary[i].name}');\n`;
-    result += `expect(ary[${i}].type).toEqual('${ary[i].type}');\n`;
-    result += `expect(ary[${i}].showInLegend).toEqual(${ary[i].showInLegend});\n`;
-    result +=
-      `expect(ary[${i}].dataPoints.length).toEqual(` +
-      `${ary[i].dataPoints.length});\n`;
-    for (let j = 0; j < ary[i].dataPoints.length; j += 1) {
-      result +=
-        `expect(ary[${i}].dataPoints[${j}].label).toEqual('` +
-        `${ary[i].dataPoints[j].label}');\n`;
-      result +=
-        `expect(ary[${i}].dataPoints[${j}].y).toEqual(` +
-        `${ary[i].dataPoints[j].y});\n`;
-      result +=
-        `expect(ary[${i}].dataPoints[${j}].ttip).toEqual('` +
-        `${ary[i].dataPoints[j].ttip}');\n`;
-    }
-  }
-
-  log(result);
-}
-
-export async function getChartData(driver: ThenableWebDriver, label: string) {
-  // locate the asset text dump
-  const divElement = await driver.findElement(webdriver.By.id(label));
-  // extract the content
-  const content = await divElement.getAttribute('value');
-  // log(`content = ${content}`);
-  // check the content matches our expectations
-  const ary = JSON.parse(content);
-  return ary;
-}
-
-async function getTypedChartData(
-  driver: ThenableWebDriver,
-  switchButtonID: string,
-  dataDumpName: string,
-) {
-  const btn = await driver.findElements(webdriver.By.id(switchButtonID));
-  expect(btn.length === 1).toBe(true);
-  await btn[0].click();
-  if (allowExtraSleeps()) {
-    await sleep(shortSleep, '--- after switching to correct context');
-  }
-  return getChartData(driver, dataDumpName);
-}
-export async function getAssetChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Assets', 'assetDataDump');
-}
-export async function getDebtChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Debts', 'debtDataDump');
-}
-export async function getExpenseChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Expenses', 'expenseDataDump');
-}
-export async function getIncomeChartData(driver: ThenableWebDriver) {
-  return getTypedChartData(driver, 'btn-Incomes', 'incomeDataDump');
-}

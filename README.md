@@ -19,7 +19,7 @@ Is handled by Auth0, code in
 Logo handling was understood by reading
 https://community.auth0.com/t/company-logo-upload-not-url/38910/8
 and then adding link to (raw)
-https://github.com/jeanflower/FinKitty/raw/master/src/views/cat.png 
+https://github.com/jeanflower/FinNeoClient/raw/master/src/views/cat.png 
 in Auth0 Tenant Settings page.
 
 ## Getting started for developers
@@ -34,9 +34,9 @@ for it to query and update.  E.g. there's a cloud server
 running on Heroku and this app can work with that.
 
 Optionally, for local testing or development free of a network,
-install the sister repo; FinServer, which provides the required
-REST interface for finkitty to interact with. 
-https://github.com/jeanflower/FinServer
+install the sister repo; FinNeoServer, which provides the required
+REST interface for finneo to interact with. 
+https://github.com/jeanflower/FinNeoServer
 
 The FinServer app works with a mongo database.
 There's one running in the cloud or
@@ -44,7 +44,7 @@ install a local DB following instructions here
 https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/
 
 The `start*.sh` scripts expect a folder structure
-with finkitty, FinServer and mongo as sibling folders.
+with finneo, FinNeoServer and mongo as sibling folders.
 
 ## Everyday scripts for developers
 
@@ -88,7 +88,7 @@ Running the web server also reports linting issues in the console.
 Type
 `npm run deploy`
 and go to
-https://jeanflower.github.io/FinKitty/
+https://jeanflower.github.io/FinNeoClient/
 
 Setup was based on the guide here
 https://reactgo.com/deploy-react-app-github-pages/
@@ -96,7 +96,7 @@ https://reactgo.com/deploy-react-app-github-pages/
 Or, trying Heroku from here
 https://blog.heroku.com/deploying-react-with-zero-configuration
 and tried
-`heroku create -b https://github.com/flowerj/finkitty-buildpack.git`
+`heroku create -b https://github.com/flowerj/finneo-buildpack.git`
 seeing `error code=H10 desc="App crashed"` in Heroku logs, following
 https://dev.to/lawrence_eagles/causes-of-heroku-h10-app-crashed-error-and-how-to-solve-them-3jnl
 
