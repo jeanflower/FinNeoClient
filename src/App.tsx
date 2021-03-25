@@ -8,11 +8,14 @@ import {
   deleteFood,
   getFoods,
 } from './database/loadSaveModel';
-import { Button, Form, Nav, Navbar } from 'react-bootstrap';
+import { Form, Nav, Navbar } from 'react-bootstrap';
 import { useAuth0 } from './contexts/auth0-context';
 import { homeView, ViewType } from './localization/stringConstants';
-import { AddDeleteEntryForm } from './views/reactComponents/AddDeleteEntryForm';
-import { Food } from './types/interfaces';
+import { AddFoodForm, DelFoodForm } from './views/reactComponents/AddDeleteEntryForm';
+import { Food, Item } from './types/interfaces';
+import Button from './views/reactComponents/Button';
+import DataGrid from './views/reactComponents/DataGrid';
+import SimpleFormatter from './views/reactComponents/SimpleFormatter';
 
 // import FinKittyCat from './views/cat.png';
 
@@ -229,7 +232,7 @@ export class AppContent extends Component<AppProps, AppState> {
               >
                 <div className="col">
                   <div className="d-flex flex-row-reverse">
-                    {/*this.rhsTopButtonList()*/}
+                    {this.rhsTopButtonList()}
                   </div>
                   <div className="d-flex flex-row-reverse">
                     {/*this.rhsBottomButtonList()*/}
@@ -242,32 +245,143 @@ export class AppContent extends Component<AppProps, AppState> {
       );
     });
   }
+
+  private defaultColumn = {
+    editable: true,
+    resizable: true,
+    sortable: true,
+  };
+
+  private lessThan(a: string, b: string) {
+    if (a.toLowerCase() < b.toLowerCase()) {
+      return -1;
+    }
+    if (a.toLowerCase() > b.toLowerCase()) {
+      return 1;
+    }
+    if (a < b) {
+      return -1;
+    }
+    if (a > b) {
+      return 1;
+    }
+    return 0;
+  }
+
+  private foodsTable(
+  ) {
+    return (
+      <>
+        <h4>Foods</h4>
+        <DataGrid
+          deleteFunction={async function() {
+            return false;
+          }}
+          handleGridRowsUpdated={function() {
+            return false;
+          }}
+          rows={this.state.foods
+            .map((f) => {
+              // log(`key[0] = ${key[0]}, key[1] = ${key[1]}`);
+              if(f.details.calories !== undefined){
+                return {
+                  name: f.foodName,
+                  units: f.details.unit.name,
+                  quantity: f.details.quantity,
+                  calories: f.details.calories,
+                  protein: f.details.proteinWeight,
+                  veg: f.details.vegWeight,
+                  cards: f.details.carbsWeight,
+                  fats: f.details.fatsWeight,
+                };
+              } else {
+                return {
+                  name: f.foodName,
+                  calories: 'undefined',
+                };
+              }
+            })
+            .sort((a: Item, b: Item) => this.lessThan(a.name, b.name))}
+          columns={[
+            {
+              ...this.defaultColumn,
+              key: 'name',
+              name: 'name',
+              formatter: <SimpleFormatter name="name" value="unset" />,
+              editable: false,
+            },
+            {
+              ...this.defaultColumn,
+              key: 'units',
+              name: `units`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
+            },
+            {
+              ...this.defaultColumn,
+              key: 'quantity',
+              name: `quantity`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
+            },
+            {
+              ...this.defaultColumn,
+              key: 'calories',
+              name: `calories`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
+            },
+            {
+              ...this.defaultColumn,
+              key: 'protein',
+              name: `protein`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
+            },
+            {
+              ...this.defaultColumn,
+              key: 'veg',
+              name: `veg`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
+            },
+            {
+              ...this.defaultColumn,
+              key: 'fats',
+              name: `fats`,
+              formatter: <SimpleFormatter name="value" value="unset" />,
+              editable: false,
+            },
+          ]}
+        />
+      </>
+    );
+  }
+
   private homeDiv() {
     // log(`this.state.modelNamesData = ${this.state.modelNamesData}`);
     return (
       <>
       here are the foods I found for you:
       {
-      JSON.stringify(this.state.foods)
+      this.foodsTable()
       }
-      <AddDeleteEntryForm
-        name="add new food"
-        getValue={()=>{return ''}}
-        submitFunction={async (val: string)=>{
-          console.log(`adding new food ${val}`);
-          await addFood(getUserID(), val, 'food details');
-          await refreshData(true); // read all back from DB
+      <AddFoodForm
+        submitFunction={async (newFood: Food)=>{
+          console.log(`adding new food ${newFood}`);
+          await addFood(getUserID(), newFood, async ()=>{
+            await refreshData(true); // read all back from DB
+          });
           return;
         }}
         showAlert={showAlert}
       />
-      <AddDeleteEntryForm
-        name="delete food"
-        getValue={()=>{return ''}}
+      <DelFoodForm
         submitFunction={async (val: string)=>{
           console.log(`deleting food ${val}`);
-          await deleteFood(getUserID(), val);
-          await refreshData(true); // read all back from DB
+          await deleteFood(getUserID(), val, async ()=>{
+            await refreshData(true); // read all back from DB
+          });
           return;
         }}
         showAlert={showAlert}
@@ -275,6 +389,23 @@ export class AppContent extends Component<AppProps, AppState> {
       </>
     );
   }
+
+  private rhsTopButtonList() {
+    const buttons: JSX.Element[] = [];
+    buttons.push(
+      <Button
+        action={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          event.persist();
+          this.props.logOutAction();
+        }}
+        title="Log out"
+        type="primary"
+        key="Log out"
+        id={`btn-LogOut`}
+      />,
+    );
+    return buttons;
+  }  
 
   public render() {
     if (printDebug()) {
@@ -337,7 +468,7 @@ export class AppContent extends Component<AppProps, AppState> {
       result.push(
         <Button
           key={'alert'}
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          action={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             // log('clear alert text');
             e.persist();
             this.setState({ alertText: '' });

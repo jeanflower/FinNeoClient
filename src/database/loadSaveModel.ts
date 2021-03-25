@@ -28,14 +28,14 @@ export async function getFoods(userID: string) {
 
 async function addFoodDB(
   userID: string,
-  foodName: string,
-  food: string,
+  food: Food,
+  callback: ()=>{},
 ) {
   if (showDBInteraction) {
     log(`add food for user ${userID}`);
   }
   try {
-    await getDB().addFood(userID, foodName, food);
+    await getDB().addFood(userID, food.foodName, JSON.stringify(food.details), callback);
   } catch (error) {
     alert(`error contacting database ${error}`);
   }
@@ -48,22 +48,23 @@ async function addFoodDB(
 
 export async function addFood(
   userID: string,
-  foodName: string,
-  food: string,
+  food: Food,
+  callback: ()=>{},
 ) {
-  const foods = await addFoodDB(userID, foodName, food);
+  const foods = await addFoodDB(userID, food, callback);
   return foods;
 }
 
 async function deleteFoodDB(
   userID: string,
   foodName: string,
+  callback: ()=>{},
 ) {
   if (showDBInteraction) {
     log(`delete food for user ${userID}`);
   }
   try {
-    await getDB().deleteFood(userID, foodName);
+    await getDB().deleteFood(userID, foodName, callback);
   } catch (error) {
     alert(`error contacting database ${error}`);
   }
@@ -77,7 +78,8 @@ async function deleteFoodDB(
 export async function deleteFood(
   userID: string,
   foodName: string,
+  callback: ()=>{},
 ) {
-  await deleteFoodDB(userID, foodName);
+  await deleteFoodDB(userID, foodName, callback);
   return;
 }
