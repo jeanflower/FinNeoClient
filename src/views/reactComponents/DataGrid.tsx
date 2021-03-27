@@ -10,6 +10,10 @@ interface DataGridProps {
   rows: any[]; // TODO any
   columns: any[]; // TODO any
   deleteFunction: (name: string) => Promise<boolean>;
+  viewFunction: (name: string) => Promise<void>;
+  copyFunction: (name: string) => Promise<void>;
+  showDel: boolean,
+  showCopy: boolean,
 }
 interface DataGridState {
   rows: any[]; // TODO any
@@ -121,19 +125,44 @@ class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
   private getCellActions(column: ReactDataGrid.Column<any>, row: any) {
     // log(`get cell actions?`);
-    if (column.key === 'NAME') {
+    if (column.key === 'DEL' && this.props.showDel) {
       // log(`add glyph`);
       return [
         {
           icon: 'fa fa-trash',
           callback: () => {
-            if (window.confirm(`delete data for ${row['NAME']} - you sure?`)) {
-              this.props.deleteFunction(row['NAME']);
+            if (window.confirm(`delete data for ${row['name']} - you sure?`)) {
+              this.props.deleteFunction(row['name']);
             }
           },
         },
       ];
+    } else if (column.key === 'VIEW' && row['HAS_PARTS']>0) {
+      // log(`add glyph`);
+      return [
+        {
+          icon: 'fa fa-eye',
+          callback: () => {
+            // if (window.confirm(`view data for ${row['name']} - you sure?`)) {
+              this.props.viewFunction(row['name']);
+            // }
+          },
+        },
+      ];
+    } else if (column.key === 'COPY' && this.props.showCopy) {
+      // log(`add glyph`);
+      return [
+        {
+          icon: 'fa fa-copy',
+          callback: () => {
+            // if (window.confirm(`view data for ${row['name']} - you sure?`)) {
+              this.props.copyFunction(row['name']);
+            // }
+          },
+        },
+      ];
     } else {
+
       return [];
     }
   }

@@ -6,9 +6,12 @@ export interface Unit {
   name: string,
 }
 
-export interface FoodDetails {
+export interface FoodAmount {
   quantity: number,
   unit: Unit
+}
+
+export interface FoodDetails {
   calories: number,
   proteinWeight: number,
   vegWeight: number,
@@ -18,5 +21,7 @@ export interface FoodDetails {
  
 export interface Food {
   foodName: string,
-  details: FoodDetails,
+  amount: FoodAmount,
+  details: FoodDetails | undefined,
+  parts: Food[],
 }

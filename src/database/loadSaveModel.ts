@@ -2,6 +2,7 @@ import { Food } from '../types/interfaces';
 import { log } from '../utils';
 
 import { getDB } from './database';
+import { currentVersion } from './REST_db';
 
 const showDBInteraction = false;
 
@@ -30,29 +31,47 @@ async function addFoodDB(
   userID: string,
   food: Food,
   callback: ()=>{},
-) {
+): Promise<boolean> {
   if (showDBInteraction) {
     log(`add food for user ${userID}`);
   }
   try {
-    await getDB().addFood(userID, food.foodName, JSON.stringify(food.details), callback);
+    await getDB().addFood(
+      userID,
+      food.foodName,
+      JSON.stringify({
+        amount: food.amount,
+        details: food.details,
+        parts: food.parts,
+        version: currentVersion,
+      }),
+      callback,
+    );
   } catch (error) {
     alert(`error contacting database ${error}`);
+    return false;
   }
   if (showDBInteraction) {
     log(`added food ${food}`);
   }
-  return;
+  return true;
 }
 
 
 export async function addFood(
   userID: string,
   food: Food,
+  allFoods: Food[],
   callback: ()=>{},
-) {
-  const foods = await addFoodDB(userID, food, callback);
-  return foods;
+): Promise<boolean> {
+  if(allFoods.find((x)=>{
+    return x.foodName === food.foodName;
+  })){
+    alert(`food with name ${food.foodName} already exists`);
+    return false
+  }
+  const result = await addFoodDB(userID, food, callback);
+  return result;
 }
 
 async function deleteFoodDB(
@@ -81,5 +100,43 @@ export async function deleteFood(
   callback: ()=>{},
 ) {
   await deleteFoodDB(userID, foodName, callback);
+  return;
+}
+
+async function updateFoodDB(
+  userID: string,
+  food: Food,
+  callback: ()=>{},
+) {
+  if (showDBInteraction) {
+    log(`update food for user ${userID}`);
+  }
+  try {
+    await getDB().updateFood(
+      userID, 
+      food.foodName,
+      JSON.stringify({
+        amount: food.amount,
+        details: food.details,
+        parts: food.parts,
+        version: currentVersion,
+      }),      
+      callback);
+  } catch (error) {
+    alert(`error contacting database ${error}`);
+  }
+  if (showDBInteraction) {
+    log(`updated food ${food}`);
+  }
+  return;
+}
+
+
+export async function updateFood(
+  userID: string,
+  food: Food,
+  callback: ()=>{},
+) {
+  await updateFoodDB(userID, food, callback);
   return;
 }
