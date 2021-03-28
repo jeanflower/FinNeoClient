@@ -1,27 +1,23 @@
 {
   "files": {
-    "main.css": "/FinKitty/static/css/main.193e7cc0.chunk.css",
-    "main.js": "/FinKitty/static/js/main.77694733.chunk.js",
-    "main.js.map": "/FinKitty/static/js/main.77694733.chunk.js.map",
-    "runtime-main.js": "/FinKitty/static/js/runtime-main.43fb0b37.js",
-    "runtime-main.js.map": "/FinKitty/static/js/runtime-main.43fb0b37.js.map",
-    "static/js/2.38185a2b.chunk.js": "/FinKitty/static/js/2.38185a2b.chunk.js",
-    "static/js/2.38185a2b.chunk.js.map": "/FinKitty/static/js/2.38185a2b.chunk.js.map",
-    "index.html": "/FinKitty/index.html",
-    "precache-manifest.c631c1f07eb7a9d0ba08ad150dc9833a.js": "/FinKitty/precache-manifest.c631c1f07eb7a9d0ba08ad150dc9833a.js",
-    "service-worker.js": "/FinKitty/service-worker.js",
-    "static/css/main.193e7cc0.chunk.css.map": "/FinKitty/static/css/main.193e7cc0.chunk.css.map",
-    "static/js/2.38185a2b.chunk.js.LICENSE.txt": "/FinKitty/static/js/2.38185a2b.chunk.js.LICENSE.txt",
-    "static/js/main.77694733.chunk.js.LICENSE.txt": "/FinKitty/static/js/main.77694733.chunk.js.LICENSE.txt",
-    "static/media/cat.png": "/FinKitty/static/media/cat.50c12de4.png",
-    "static/media/sampleAssetGraph.png": "/FinKitty/static/media/sampleAssetGraph.405ff0cd.png",
-    "static/media/sampleExpenseGraph.png": "/FinKitty/static/media/sampleExpenseGraph.5581786d.png",
-    "static/media/sampleTaxGraph.png": "/FinKitty/static/media/sampleTaxGraph.c9aa7cfc.png"
+    "main.css": "/FinNeoClient/static/css/main.193e7cc0.chunk.css",
+    "main.js": "/FinNeoClient/static/js/main.6f8e1dbe.chunk.js",
+    "main.js.map": "/FinNeoClient/static/js/main.6f8e1dbe.chunk.js.map",
+    "runtime-main.js": "/FinNeoClient/static/js/runtime-main.64ecadca.js",
+    "runtime-main.js.map": "/FinNeoClient/static/js/runtime-main.64ecadca.js.map",
+    "static/js/2.ef101fb2.chunk.js": "/FinNeoClient/static/js/2.ef101fb2.chunk.js",
+    "static/js/2.ef101fb2.chunk.js.map": "/FinNeoClient/static/js/2.ef101fb2.chunk.js.map",
+    "index.html": "/FinNeoClient/index.html",
+    "precache-manifest.fad5509d237f605c46600904d50ae2e2.js": "/FinNeoClient/precache-manifest.fad5509d237f605c46600904d50ae2e2.js",
+    "service-worker.js": "/FinNeoClient/service-worker.js",
+    "static/css/main.193e7cc0.chunk.css.map": "/FinNeoClient/static/css/main.193e7cc0.chunk.css.map",
+    "static/js/2.ef101fb2.chunk.js.LICENSE.txt": "/FinNeoClient/static/js/2.ef101fb2.chunk.js.LICENSE.txt",
+    "static/media/cat.png": "/FinNeoClient/static/media/cat.50c12de4.png"
   },
   "entrypoints": [
-    "static/js/runtime-main.43fb0b37.js",
-    "static/js/2.38185a2b.chunk.js",
+    "static/js/runtime-main.64ecadca.js",
+    "static/js/2.ef101fb2.chunk.js",
     "static/css/main.193e7cc0.chunk.css",
-    "static/js/main.77694733.chunk.js"
+    "static/js/main.6f8e1dbe.chunk.js"
   ]
 }
