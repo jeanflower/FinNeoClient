@@ -85,6 +85,12 @@ Run `./lintFixes.sh` keeps things clean.
 Running the web server also reports linting issues in the console.
 
 ### Publishing to github pages
+Doesn't work.
+heroku git:remote -a finneo  
+git push heroku master
+
+### Publishing to github pages
+Doesn't work.
 Type
 `npm run deploy`
 and go to
