@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/FinNeoClient/precache-manifest.fad5509d237f605c46600904d50ae2e2.js"
+  "/FinNeoClient/precache-manifest.12d46b39de3bb1a51a6e917bf8e99868.js"
 );
 
 self.addEventListener('message', (event) => {

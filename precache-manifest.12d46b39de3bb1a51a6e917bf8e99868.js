@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "4425b96e335ea88652de797132dde2a7",
+    "revision": "5b4c9fa9c9642fabadfcf97fd834558f",
     "url": "/FinNeoClient/index.html"
   },
   {
-    "revision": "817f6c763ed4cf163d05",
+    "revision": "6194f8b488f42b952590",
     "url": "/FinNeoClient/static/css/main.193e7cc0.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/FinNeoClient/static/js/2.ef101fb2.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "817f6c763ed4cf163d05",
-    "url": "/FinNeoClient/static/js/main.6f8e1dbe.chunk.js"
+    "revision": "6194f8b488f42b952590",
+    "url": "/FinNeoClient/static/js/main.197c5a71.chunk.js"
   },
   {
     "revision": "6e649ea48e72649eafbc",
