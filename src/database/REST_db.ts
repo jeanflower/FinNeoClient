@@ -1,5 +1,5 @@
 import { Food } from '../types/interfaces';
-import { log, printDebug, showObj } from '../utils';
+import { log, printDebug } from '../utils';
 
 const url = process.env.REACT_APP_SERVER_URL_NOT_SECRET;
 
@@ -143,7 +143,7 @@ export class RESTDB {
     userID: string, 
     foodName: string,
     food: string,
-    callback: ()=>{},
+    callback: ()=>void,
   ){
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
@@ -175,7 +175,7 @@ export class RESTDB {
   deleteFood(
     userID: string, 
     foodName: string,
-    callback: ()=>{},
+    callback: ()=>void,
   ){
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
@@ -229,7 +229,7 @@ export class RESTDB {
       redirect: 'follow'
     };
     
-    fetch("http://localhost:3001/finneo/food_update", requestOptions)
+    fetch(`${url}food_update`, requestOptions)
       .then(response => response.text())
       .then(result => console.log(result))
       .then(callback)

@@ -1,6 +1,5 @@
 import React, { Component, FormEvent } from 'react';
 import { Button } from 'react-bootstrap';
-import { toggle } from '../../App';
 import { Food } from '../../types/interfaces';
 
 import { log, printDebug, showObj } from '../../utils';
@@ -26,7 +25,11 @@ interface AddFoodState {
 }
 interface AddFoodProps {
   allFoods: Food[],
-  submitFunction: (f: Food) => Promise<any>;
+  getFoodToEdit: ()=>Food|undefined,
+  submitFunction: (
+    f: Food,
+    confirmFunction: ()=>void,
+  ) => Promise<any>;
   showAlert: (message: string) => void;
 }
 function getEmptyState(): AddFoodState {
@@ -67,7 +70,9 @@ export class AddFoodForm extends Component<AddFoodProps, AddFoodState> {
     this.handlePartQuantityWIP = this.handlePartQuantityWIP.bind(this);
     this.add = this.add.bind(this);
     this.addPart = this.addPart.bind(this);
+    this.delPart = this.delPart.bind(this);
     this.delParts = this.delParts.bind(this);
+    this.editFood = this.editFood.bind(this);
   }
   public render() {
     //log(`rendering widget, title = ${this.props.name}`);
@@ -167,12 +172,17 @@ export class AddFoodForm extends Component<AddFoodProps, AddFoodState> {
           onChange={this.handlePartUnitWIP}
         />
         <Button
+          onClick={this.editFood}
+          type={'primary'}
+          id="editFood"
+        >Grab an existing food to edit</Button>
+        <Button
           onClick={this.addPart}
           type={'primary'}
           id="addFoodPart"
-        >Add a food part</Button>
+        >Add a food part to this food</Button>
         <Button
-          onClick={this.delParts}
+          onClick={this.delPart}
           type={'primary'}
           id="delFoodPart"
         >Delete a food part</Button>
@@ -245,10 +255,51 @@ export class AddFoodForm extends Component<AddFoodProps, AddFoodState> {
       partQuantityWIP: '',
     });
   }
+  private async editFood(e: FormEvent<Element>) {
+    e.preventDefault();
+    const foodToEdit = this.props.getFoodToEdit();
+    if(foodToEdit === undefined){
+      alert('choose a food to view in the 2nd table to edit it');
+      return;
+    }
+    this.setState({
+      units: foodToEdit.amount.unit.name,
+      name: foodToEdit.foodName,
+      quantity: `${foodToEdit.amount.quantity}`,
+      calories: foodToEdit.details?`${foodToEdit.details.calories}`:'',
+      proteinWeight: foodToEdit.details?`${foodToEdit.details.proteinWeight}`:'',
+      vegWeight: foodToEdit.details?`${foodToEdit.details.vegWeight}`:'',
+      carbsWeight: foodToEdit.details?`${foodToEdit.details.carbsWeight}`:'',
+      fatsWeight: foodToEdit.details?`${foodToEdit.details.fatsWeight}`:'',
+      partNameWIP: '',
+      partUnitWIP: '',
+      partQuantityWIP: '',
+      parts: foodToEdit.parts.map((p)=>{
+        return {
+          name: p.foodName,
+          units: p.amount.unit.name,
+          quantity: `${p.amount.quantity}`,
+        }
+      }),
+    });
+  }
   private async delParts(e: FormEvent<Element>) {
     e.preventDefault();
     this.setState({ 
       parts: [],
+    });
+  }
+  private async delPart(e: FormEvent<Element>) {
+    e.preventDefault();
+    const parts = this.state.parts;
+    const newParts = parts.filter((p)=>{
+      return p.name !== this.state.partNameWIP;
+    });
+    this.setState({ 
+      parts: newParts,
+      partNameWIP: '',
+      partUnitWIP: '',
+      partQuantityWIP: '',
     });
   }
   private getUnits(
@@ -338,10 +389,13 @@ export class AddFoodForm extends Component<AddFoodProps, AddFoodState> {
             parts:[],
           }
         }),
+      },
+      ()=>{
+        return this.props.showAlert(`saved ${this.state.name}`);
       });
     this.delParts(e);
     this.setState(getEmptyState());
-    this.props.showAlert(`updating`);
+    this.props.showAlert(`saving ${this.state.name}`);
   }
 }
 
@@ -530,7 +584,9 @@ export class AddFoodButtonForm extends Component<AddFoodProps, AddFoodState> {
             parts:[],
           }
         }),
-      });
+      },
+      ()=>{this.props.showAlert(`updated`);}
+      );
     this.setState(getEmptyState());
     this.props.showAlert(`updating`);
   }

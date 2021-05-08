@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 
-import { log, printDebug } from './utils';
+import { log, printDebug, showObj } from './utils';
 import { loginPage, navbarContent } from './views/loginPage';
 
 import {
   addFood,
   deleteFood,
   getFoods,
+  renameFoodDB,
   updateFood,
 } from './database/loadSaveModel';
 import { Accordion, Button, Card, Container, Form, Nav, Navbar } from 'react-bootstrap';
@@ -16,9 +17,6 @@ import { AddFoodButtonForm, AddFoodForm, DelFoodButtonForm, DelFoodForm } from '
 import { Food, Item } from './types/interfaces';
 import DataGrid from './views/reactComponents/DataGrid';
 import SimpleFormatter from './views/reactComponents/SimpleFormatter';
-
-
-// import FinKittyCat from './views/cat.png';
 
 // import './bootstrap.css'
 
@@ -165,36 +163,71 @@ function updateFromTable(
     fats: string|undefined,
   },
   parentFood: Food | undefined,
+  foods: Food[],
 ){
   // console.log('updating3...');
-  // console.log(`foodRow = ${showObj(oldFoodRow)} => ${showObj(newEntry)}`);
+  console.log(`foodRow = ${showObj(oldFoodRow)} => ${showObj(newEntry)}`);
+  console.log(`parentFood = ${parentFood?.foodName}`);
 
   if(newEntry.name !== undefined){
     if(newEntry.name !== oldFoodRow.name){
-      alert (`can't update name - use copy and delete instead`);
-    }
-    return;
+      // search for old name as a part of some food
+      const dependents = foods.filter((f)=>{
+        return f.parts.filter((p)=>{
+          return p.foodName === oldFoodRow.name;
+        }).length > 0;
+      });
+      if(dependents.length > 0){
+        alert (`can't update name - use copy and delete instead; 
+          dependents are ${dependents.map((d)=>{return d.foodName})}`);
+        return
+      }
+      const food: Food = {
+        foodName: oldFoodRow.name,
+        amount: {
+          unit: {
+            name: oldFoodRow.units,
+          },
+          quantity: oldFoodRow.quantity,
+        },
+        details: {
+          calories: makeDirectNum(oldFoodRow.calories),
+          proteinWeight: makeDirectNum(oldFoodRow.protein),
+          carbsWeight: makeDirectNum(oldFoodRow.carbs),
+          vegWeight: makeDirectNum(oldFoodRow.veg),
+          fatsWeight: makeDirectNum(oldFoodRow.fats),
+        },
+        parts: [],
+      }
+      renameFoodDB(getUserID(), food, newEntry.name, async ()=>{
+        await reactAppComponent.refreshData(
+          true, // read all back from DB
+          ); 
+      });
+      return;
+    }    
   }
+
   if(parentFood){
     // console.log(`parentFood is ${parentFood.foodName}`);
     if(newEntry.calories !== undefined){
-      alert (`can't update calories - use copy and delete instead`);
+      alert (`can't update calories - data is calculated from parts`);
       return;
     }
     if(newEntry.protein !== undefined){
-      alert (`can't update protein - use copy and delete instead`);
+      alert (`can't update protein - data is calculated from parts`);
       return;
     }
     if(newEntry.veg !== undefined){
-      alert (`can't update veg - use copy and delete instead`);
+      alert (`can't update veg - data is calculated from parts`);
       return;
     }
     if(newEntry.carbs !== undefined){
-      alert (`can't update carbs - use copy and delete instead`);
+      alert (`can't update carbs - data is calculated from parts`);
       return;
     }
     if(newEntry.fats !== undefined){
-      alert (`can't update fats - use copy and delete instead`);
+      alert (`can't update fats - data is calculated from parts`);
       return;
     }
 
@@ -267,6 +300,7 @@ function updateFromTable(
 
 function handleFoodRowUpdated(
   parentFood: Food | undefined,
+  foods: Food[],
   args: any
 ){
   // console.log('updating2...');
@@ -274,7 +308,7 @@ function handleFoodRowUpdated(
   const newEntry = args[0].updated;
   // console.log(`foodRow = ${showObj(oldFoodRow)} => ${showObj(newEntry)}`);
 
-  updateFromTable(oldFoodRow, newEntry, parentFood);
+  updateFromTable(oldFoodRow, newEntry, parentFood, foods);
 }
 
 
@@ -545,7 +579,7 @@ export class AppContent extends Component<AppProps, AppState> {
           showCopy={showCopy}          
           handleGridRowsUpdated={function(){
             console.log('updating...');
-            return handleFoodRowUpdated(parentFood, arguments);
+            return handleFoodRowUpdated(parentFood, foods, arguments);
           }}
           rows={foods
             .map((f) => {
@@ -806,13 +840,20 @@ export class AppContent extends Component<AppProps, AppState> {
 
       <AddFoodForm
         allFoods={this.state.allFoods}
-        submitFunction={async (newFood: Food)=>{
+        getFoodToEdit={()=>{
+          return this.state.focusFood;
+        }}
+        submitFunction={async (
+          newFood: Food,
+          confirmFunction: ()=>void,
+        )=>{
           // console.log(`adding new food ${newFood}`);
           if(!await addFood(
             getUserID(), 
             newFood, 
             this.state.allFoods,
             async ()=>{
+              confirmFunction();
               await this.refreshData(
                 true, // read all back from DB
                 );
@@ -838,6 +879,9 @@ export class AppContent extends Component<AppProps, AppState> {
 
       <AddFoodButtonForm
         allFoods={this.state.allFoods}
+        getFoodToEdit={()=>{
+          return this.state.focusFood;
+        }}
         submitFunction={async (newFood: Food)=>{
           console.log(`adding new food ${newFood}`);
           if(!await addFood(

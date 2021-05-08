@@ -30,7 +30,7 @@ export async function getFoods(userID: string) {
 async function addFoodDB(
   userID: string,
   food: Food,
-  callback: ()=>{},
+  callback: ()=>void,
 ): Promise<boolean> {
   if (showDBInteraction) {
     log(`add food for user ${userID}`);
@@ -62,7 +62,7 @@ export async function addFood(
   userID: string,
   food: Food,
   allFoods: Food[],
-  callback: ()=>{},
+  callback: ()=>void,
 ): Promise<boolean> {
   if(allFoods.find((x)=>{
     return x.foodName === food.foodName;
@@ -77,7 +77,7 @@ export async function addFood(
 async function deleteFoodDB(
   userID: string,
   foodName: string,
-  callback: ()=>{},
+  callback: ()=>void,
 ) {
   if (showDBInteraction) {
     log(`delete food for user ${userID}`);
@@ -97,7 +97,7 @@ async function deleteFoodDB(
 export async function deleteFood(
   userID: string,
   foodName: string,
-  callback: ()=>{},
+  callback: ()=>void,
 ) {
   await deleteFoodDB(userID, foodName, callback);
   return;
@@ -131,6 +131,37 @@ async function updateFoodDB(
   return;
 }
 
+export async function renameFoodDB(
+  userID: string,
+  food: Food,
+  newName: string,
+  callback: ()=>void,
+) {
+  if (showDBInteraction) {
+    log(`update food for user ${userID}`);
+  }
+  try {
+    const oldName = food.foodName;
+    food.foodName = newName;
+    await addFoodDB(
+      userID, 
+      food,
+      ()=>{
+        deleteFood(
+          userID,
+          oldName,
+          callback,
+        );
+      }
+      );
+  } catch (error) {
+    alert(`error contacting database ${error}`);
+  }
+  if (showDBInteraction) {
+    log(`updated food ${food}`);
+  }
+  return;
+}
 
 export async function updateFood(
   userID: string,
